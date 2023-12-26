@@ -14,10 +14,26 @@ html {
 }
 
 .score {
+  left: 20%;
+  top: 15%;
+}
+
+.score,
+.exp,
+.lvl {
   position: absolute;
-  left: 10%;
-  top: 5%;
   transform: translate(-50%, -50%);
   font-family: "Press Start 2P";
   font-size: 20px;
+  width: 500px;
+  height: 100px;
+}
+
+.lvl {
+  left: 20%;
+  top: 20%;
+}
+.exp {
+  left: 20%;
+  top: 25%;
 }

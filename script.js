@@ -9,6 +9,8 @@ class Champion {
     this.canvas = document.getElementById("gameCanvas"); //main canvas ng game, kung saan dito nangyayari yung gameplay
     this.ctx = this.canvas.getContext("2d"); //set the context as 2d as our game is 2d
     this.scoreboard = document.getElementById("score"); //scoreboard of the game
+    this.expBoard = document.getElementById("exp");
+    this.lvlBoard = document.getElementById("lvl");
 
     this.currScore = 0; //current score ni user
     this.champSize = 30; //size ng champ / character
@@ -20,7 +22,7 @@ class Champion {
     this.level = 1;
     this.levelExpReq = 100;
     this.currentExp = 0;
-    this.powerUps = ["FRENZYYYYY", "MO BULLETS", "good luck sire.", ""];
+    this.timer = 2000;
 
     this.setupCanvas(); //sets the canvas properties
     this.setupListeners(); //sets the event listeners
@@ -156,7 +158,7 @@ class Champion {
 
     setTimeout(() => {
       this.allowShot = true;
-    }, 2000); //every time na mag shoot si champ, add a 2s cooldown para balanced
+    }, this.timer); //every time na mag shoot si champ, add a 2s cooldown para balanced
   }
 
   animateShot() {
@@ -179,7 +181,6 @@ class Champion {
               (shot.x - enemy.x) ** 2 + (shot.y - enemy.y) ** 2
             ); //how far the shot and the enemy is
             if (distance < shot.size + enemy.size) {
-              this.allowShot = true;
               //if mas konti ang size ni shot and enemy added then it means nagkaroon ng collision
               this.shots.splice(i, 1); //remove the current shot and 1 element
               this.enemy.splice(j, 1); //remove the current enemy and 1 element
@@ -187,6 +188,7 @@ class Champion {
               j--; // -1 to the enemy
               this.currScore += 50; //weehoo +50 sa score baby
               this.scoreboard.innerHTML = "Score: " + this.currScore; //set the current html text ng score
+              this.userLevel();
               break;
             }
           }
@@ -331,6 +333,7 @@ class Champion {
       if (distance < this.champSize / 2 + enemy.size) {
         alert("GG noob u got the cheese touche");
         this.resetGame();
+        this.userLevel();
         return;
       }
     }
@@ -342,15 +345,32 @@ class Champion {
     this.scoreboard.innerHTML = "Score: " + this.currScore;
     this.shots = [];
     this.enemy = [];
+    this.levelExpReq = 100;
+    this.level = 1;
+    this.currentExp = 0;
   }
 
   userLevel() {
+    //adds level to the game
     this.currentExp += 20;
     if (this.currentExp >= this.levelExpReq) {
+      this.attackFrenzy();
       this.level += 1;
       this.levelExpReq += 100;
       this.currentExp = 0;
     }
+
+    this.expBoard.innerHTML =
+      "Exp: " + this.currentExp + "/" + this.levelExpReq;
+    this.lvlBoard.innerHTML = "Lvl: " + this.level;
+  }
+
+  attackFrenzy() {
+    this.allowShot = true;
+    this.timer = 0;
+    setTimeout(() => {
+      this.timer = 2000;
+    }, 5000);
   }
 }
 
