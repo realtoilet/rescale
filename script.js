@@ -217,7 +217,7 @@ class Champion {
       y: Math.random() * this.canvas.height,
       size: 15,
       color: "red",
-      speed: 2,
+      speed: 3,
       isActive: true,
     };
 

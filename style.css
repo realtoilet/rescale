@@ -3,6 +3,7 @@
 body {
   overflow: hidden;
   background-color: rgba(58, 57, 57, 0.733);
+  font-family: "Press Start 2P";
 }
 
 .gameCanvas {
@@ -23,7 +24,6 @@ html {
 .lvl {
   position: absolute;
   transform: translate(-50%, -50%);
-  font-family: "Press Start 2P";
   font-size: 20px;
   width: 500px;
   height: 100px;
@@ -36,4 +36,11 @@ html {
 .exp {
   left: 20%;
   top: 25%;
+}
+.desc {
+  width: 500px;
+  height: 500px;
+  left: 65%;
+  top: 5%;
+  position: absolute;
 }
