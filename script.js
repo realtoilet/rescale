@@ -4,6 +4,8 @@
     many sleepless nights for this barebone ass game i hate this shit but i learned a lot icl frfr
 */
 
+//clear rect always before animating
+
 class Champion {
   constructor() {
     this.canvas = document.getElementById("gameCanvas"); //main canvas ng game, kung saan dito nangyayari yung gameplay
@@ -299,17 +301,19 @@ class Champion {
       alive: true,
       animation: null,
       shootingInterval: null,
-    };
+    }; //properties ng turrets
 
-    this.turrets.push(turret);
-    this.updateTurretAnimation(turret);
+    this.turrets.push(turret); //push sa turret array
+    this.updateTurretAnimation(turret); //animation for shooting
 
     const shootInterval = 2000;
 
     const shoot = () => {
       if (turret.alive) {
+        //if alive, let the turret shoot
         this.shootAtChamp(turret);
       } else {
+        //else tanggalin na natin yung ability to shoot
         clearInterval(turret.shootingInterval);
         cancelAnimationFrame(turret.animation);
         this.turretShots = this.turretShots.filter(
@@ -342,18 +346,17 @@ class Champion {
       color: "yellow",
       speed: 5,
       animation: null,
-    };
+    }; //shots ng turret properties
 
-    // Calculate the direction of the shot
+    //the rest nito is parang sa shoot and animateshot
     const deltaX = this.champ.x - turret.x;
     const deltaY = this.champ.y - turret.y;
     const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-    // Set the speedX and speedY without scaling based on distance
     turretShot.speedX = (deltaX / distance) * turretShot.speed;
     turretShot.speedY = (deltaY / distance) * turretShot.speed;
 
-    this.turretShots.push(turretShot);
+    this.turretShots.push(turretShot); //push sa turretShot array
 
     const updateTurretShot = () => {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -484,6 +487,7 @@ class Champion {
     this.lvlBoard.innerHTML = "Lvl: " + this.level;
   }
   attackFrenzy() {
+    this.timer = 1000;
     this.allowShot = true;
     this.timer = 0;
     setTimeout(() => {
