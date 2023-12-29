@@ -17,12 +17,15 @@ class Champion {
     this.champColor = "blue"; //color ng champ / character
     this.mousePos = { x: 0, y: 0 }; //default pos of the mouseX and mouseY
     this.shots = []; // array of shots. para madami lumabas at magamit
+    this.turrets = [];
+    this.turretShots = [];
     this.enemy = []; // array of enemy, para madami din
     this.allowShot = true; //checks if pwede mag shoot or naw
     this.level = 1;
     this.levelExpReq = 100;
     this.currentExp = 0;
-    this.timer = 2000;
+    this.timer = 1000;
+    this.gameover = false;
 
     this.setupCanvas(); //sets the canvas properties
     this.setupListeners(); //sets the event listeners
@@ -33,13 +36,11 @@ class Champion {
     setInterval(() => {
       //this interval spawns 1 enemy every 500ms
       this.spawnEnemy();
-    }, 500);
+    }, 1000);
 
     setInterval(() => {
-      if (this.enemy.length > 0) {
-        this.enemy.shift(); // remove the first enemy in the arr
-      }
-    }, 1000);
+      this.spawnTurrets();
+    }, 5000);
   }
 
   setupCanvas() {
@@ -108,15 +109,7 @@ class Champion {
 
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); //clears the canvas for the animation
       this.drawChamp(); //draws the champion, para mag animate while being moved
-
-      for (const shot of this.shots) {
-        this.drawShot(shot); //animates all the shots na asa shots array
-      }
-
-      for (const enemy of this.enemy) {
-        this.drawEnemy(enemy); //animates all the enemy isnide the enemy array
-      }
-
+      this.render();
       if (progress < 1) {
         //if less than 1 then move it
         this.currAnim = requestAnimationFrame(updateMove);
@@ -187,6 +180,27 @@ class Champion {
               i--; // -1 to the shot
               j--; // -1 to the enemy
               this.currScore += 50; //weehoo +50 sa score baby
+              this.currentExp += 20;
+              this.scoreboard.innerHTML = "Score: " + this.currScore; //set the current html text ng score
+              this.userLevel();
+              break;
+            }
+          }
+          for (let j = 0; j < this.turrets.length; j++) {
+            //collision block, iterates thru the turrets array
+            const turret = this.turrets[j]; //takes the current turret
+            const distance = Math.sqrt(
+              (shot.x - turret.x) ** 2 + (shot.y - turret.y) ** 2
+            ); //how far the shot and the turret is
+            if (distance < shot.size + turret.size) {
+              //if mas konti ang size ni shot and enemy added then it means nagkaroon ng collision
+              turret.alive = false;
+              this.shots.splice(i, 1); //remove the current shot and 1 element
+              this.turrets.splice(j, 1); //remove the current turret and 1 element
+              i--; // -1 to the shot
+              j--; // -1 to the enemy
+              this.currScore += 100; //weehoo +100 sa score baby
+              this.currentExp += 50;
               this.scoreboard.innerHTML = "Score: " + this.currScore; //set the current html text ng score
               this.userLevel();
               break;
@@ -217,7 +231,7 @@ class Champion {
       y: Math.random() * this.canvas.height,
       size: 15,
       color: "red",
-      speed: 3,
+      speed: 1.5,
       isActive: true,
     };
 
@@ -253,16 +267,7 @@ class Champion {
 
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.drawChamp();
-
-      //itong dalawang for loop is just to render every of the element
-      for (const enemy of this.enemy) {
-        this.drawEnemy(enemy);
-      }
-
-      for (const shot of this.shots) {
-        this.drawShot(shot);
-      }
-
+      this.render();
       this.collisionUpd();
 
       if (
@@ -282,6 +287,118 @@ class Champion {
     this.enemy.push(Enemy); //add the enemy to the array sir
 
     updateEnemy(); //animate the shit out of it
+  }
+
+  spawnTurrets() {
+    const turret = {
+      x: Math.random() * this.canvas.width,
+      y: Math.random() * this.canvas.height,
+      size: 30,
+      color: "orange",
+      speed: 15,
+      alive: true,
+      animation: null,
+      shootingInterval: null,
+    };
+
+    this.turrets.push(turret);
+    this.updateTurretAnimation(turret);
+
+    const shootInterval = 2000;
+
+    const shoot = () => {
+      if (turret.alive) {
+        this.shootAtChamp(turret);
+      } else {
+        clearInterval(turret.shootingInterval);
+        cancelAnimationFrame(turret.animation);
+        this.turretShots = this.turretShots.filter(
+          (shot) => shot.turret !== turret
+        );
+      }
+    };
+
+    turret.shootingInterval = setInterval(shoot, shootInterval);
+  }
+
+  updateTurretAnimation(turret) {
+    if (!turret.alive) {
+      return;
+    }
+    const updateTurret = () => {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.drawChamp();
+      this.render();
+      requestAnimationFrame(updateTurret);
+    };
+
+    turret.animation = requestAnimationFrame(updateTurret);
+  }
+  shootAtChamp(turret) {
+    const turretShot = {
+      x: turret.x,
+      y: turret.y,
+      size: 8,
+      color: "yellow",
+      speed: 5,
+      animation: null,
+    };
+
+    // Calculate the direction of the shot
+    const deltaX = this.champ.x - turret.x;
+    const deltaY = this.champ.y - turret.y;
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+    // Set the speedX and speedY without scaling based on distance
+    turretShot.speedX = (deltaX / distance) * turretShot.speed;
+    turretShot.speedY = (deltaY / distance) * turretShot.speed;
+
+    this.turretShots.push(turretShot);
+
+    const updateTurretShot = () => {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.drawChamp();
+      this.render();
+
+      for (let i = 0; i < this.turretShots.length; i++) {
+        const shot = this.turretShots[i];
+        shot.x += shot.speedX;
+        shot.y += shot.speedY;
+        this.drawShot(shot);
+
+        const distanceToChamp = Math.sqrt(
+          (shot.x - this.champ.x) ** 2 + (shot.y - this.champ.y) ** 2
+        );
+
+        if (distanceToChamp < shot.size + this.champSize / 2) {
+          alert("GG noob, turret hit you, git gud actually");
+          this.resetGame();
+          this.userLevel();
+          return;
+        }
+
+        if (
+          shot.x < 0 ||
+          shot.x > this.canvas.width ||
+          shot.y < 0 ||
+          shot.y > this.canvas.height
+        ) {
+          this.turretShots.splice(i, 1);
+          i--;
+        }
+      }
+
+      requestAnimationFrame(() => updateTurretShot());
+    };
+
+    updateTurretShot();
+  }
+  drawTurret(turret) {
+    this.ctx.beginPath();
+    this.ctx.arc(turret.x, turret.y, turret.size, 0, 2 * Math.PI);
+    this.ctx.fillStyle = turret.color;
+    this.ctx.fill();
+    this.ctx.closePath();
   }
   drawEnemy(circle) {
     //creates the circle (red) for enemy
@@ -332,6 +449,7 @@ class Champion {
 
       if (distance < this.champSize / 2 + enemy.size) {
         alert("GG noob u got the cheese touche");
+        this.gameover = true;
         this.resetGame();
         this.userLevel();
         return;
@@ -342,17 +460,18 @@ class Champion {
   resetGame() {
     //resets everything to start over
     this.currScore = 0;
-    this.scoreboard.innerHTML = "Score: " + this.currScore;
-    this.shots = [];
-    this.enemy = [];
     this.levelExpReq = 100;
     this.level = 1;
     this.currentExp = 0;
+    this.scoreboard.innerHTML = "Score: " + this.currScore;
+    this.shots = [];
+    this.enemy = [];
+    this.turrets = [];
+    this.turretShots = [];
+    location.reload();
   }
 
   userLevel() {
-    //adds level to the game
-    this.currentExp += 20;
     if (this.currentExp >= this.levelExpReq) {
       this.attackFrenzy();
       this.level += 1;
@@ -364,16 +483,49 @@ class Champion {
       "Exp: " + this.currentExp + "/" + this.levelExpReq;
     this.lvlBoard.innerHTML = "Lvl: " + this.level;
   }
-
   attackFrenzy() {
     this.allowShot = true;
     this.timer = 0;
     setTimeout(() => {
-      this.timer = 2000;
+      this.timer = 1000;
     }, 5000);
+  }
+  render() {
+    //renders all the fucking shit
+    for (const shot of this.shots) {
+      this.drawShot(shot); //animates all the shots na asa shots array
+    }
+
+    for (const enemy of this.enemy) {
+      this.drawEnemy(enemy); //animates all the enemy isnide the enemy array
+    }
+
+    for (const turret of this.turrets) {
+      this.drawTurret(turret);
+    }
+    for (const turretShots of this.turretShots) {
+      this.drawShot(turretShots);
+    }
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const champion = new Champion(); //annddd instance of the class to start this shit
+  let scoreboard = document.getElementById("score"); //scoreboard of the game
+  let expBoard = document.getElementById("exp");
+  let lvlBoard = document.getElementById("lvl");
+  let desc = document.getElementById("desc");
+  let play = document.getElementById("play");
+
+  scoreboard.style.visibility = "hidden";
+  expBoard.style.visibility = "hidden";
+  lvlBoard.style.visibility = "hidden";
+
+  play.addEventListener("click", () => {
+    desc.style.visibility = "hidden";
+    scoreboard.style.visibility = "visible";
+    expBoard.style.visibility = "visible";
+    lvlBoard.style.visibility = "visible";
+    play.style.visibility = "hidden";
+    const champion = new Champion();
+  });
 });
