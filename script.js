@@ -96,12 +96,15 @@ class Champion {
         this.cancelAnimation(); //if animating then cancel the animation agad
       }
 
-      this.moveChamp(event.clientX, event.clientY); //gives the x and y of the mouse when the click was received
+      if (this.oldX !== event.clientX && this.oldY !== event.clientY) {
+        this.moveChamp(event.clientX, event.clientY); //gives the x and y of the mouse when the click was received
+      }
     });
   }
 
   moveChamp(targetX, targetY) {
     if (targetX !== this.oldX && targetY !== this.oldY) {
+      cancelAnimationFrame(this.currAnim);
       //movechamp moves the champ to the given x and y from the click listener
       const champX = this.champ.x; //takes the current x (or horizontal) of the champ
       const champY = this.champ.y; //takes the current y (or vertical) of the champ
@@ -142,9 +145,10 @@ class Champion {
 
       this.isAnimating = true;
       this.currAnim = requestAnimationFrame(updateMove);
-      this.oldX = this.champ.x;
-      this.oldY = this.champ.y;
+    } else {
     }
+    this.oldX = this.champ.x;
+    this.oldY = this.champ.y;
   }
 
   shoot() {
@@ -158,7 +162,7 @@ class Champion {
       x: this.champ.x, //starts sa current x ng champ
       y: this.champ.y, //starts the current y ng champ
       size: 10,
-      color: "purple",
+      color: "rgb(221, 44, 221)",
       speed: 20,
       animation: null, //no animation yet
     };

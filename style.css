@@ -2,7 +2,7 @@
 
 body {
   overflow: hidden;
-  background-color: rgb(4, 255, 46);
+  background-color: BLACK;
   font-family: "Press Start 2P";
 }
 
@@ -29,6 +29,7 @@ html {
   font-size: 20px;
   width: 500px;
   height: 100px;
+  color: white;
 }
 
 .lvl {
@@ -40,6 +41,7 @@ html {
   top: 25%;
 }
 .desc {
+  color: white;
   width: 500px;
   height: 500px;
   left: 65%;
@@ -47,6 +49,7 @@ html {
   position: absolute;
 }
 .play {
+  color: white;
   width: 300px;
   height: 200px;
   font-size: 40px;
@@ -55,6 +58,7 @@ html {
   position: absolute;
 }
 .gameEvent {
+  color: white;
   position: absolute;
   top: 10%;
   left: 50%;
