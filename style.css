@@ -21,7 +21,8 @@ html {
 
 .score,
 .exp,
-.lvl {
+.lvl,
+.time {
   position: absolute;
   transform: translate(-50%, -50%);
   font-size: 20px;
@@ -51,4 +52,15 @@ html {
   left: 5%;
   top: 5%;
   position: absolute;
+}
+.gameEvent {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  visibility: hidden;
+}
+.time {
+  left: 20%;
+  top: 30%;
 }

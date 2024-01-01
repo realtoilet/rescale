@@ -6,6 +6,11 @@
 
 //clear rect always before animating
 
+/* TODO:
+          - Add 3 hit enemies
+          - Instead of giving the user frenzy, give it as a consumable
+          - Add hextech teleport shit */
+
 class Champion {
   constructor() {
     this.canvas = document.getElementById("gameCanvas"); //main canvas ng game, kung saan dito nangyayari yung gameplay
@@ -13,6 +18,8 @@ class Champion {
     this.scoreboard = document.getElementById("score"); //scoreboard of the game
     this.expBoard = document.getElementById("exp");
     this.lvlBoard = document.getElementById("lvl");
+    this.events = document.getElementById("gameEvent");
+    this.timeDiv = document.getElementById("time");
 
     this.currScore = 0; //current score ni user
     this.champSize = 30; //size ng champ / character
@@ -26,23 +33,20 @@ class Champion {
     this.level = 1;
     this.levelExpReq = 100;
     this.currentExp = 0;
-    this.timer = 1000;
+    this.timerShot = 1000;
+    this.timerEnemy = 1000;
+    this.timerTurret = 5000;
     this.gameover = false;
+    this.startTime = Date.now();
 
     this.setupCanvas(); //sets the canvas properties
     this.setupListeners(); //sets the event listeners
     this.drawChamp(); //creates the champ / character
     this.animateShot(); //animates the shot
+    this.animateTurretShot();
     this.collisionUpd();
-
-    setInterval(() => {
-      //this interval spawns 1 enemy every 500ms
-      this.spawnEnemy();
-    }, 1000);
-
-    setInterval(() => {
-      this.spawnTurrets();
-    }, 5000);
+    this.timers(); //for intervals and timeouts
+    this.gameTime();
   }
 
   setupCanvas() {
@@ -153,7 +157,7 @@ class Champion {
 
     setTimeout(() => {
       this.allowShot = true;
-    }, this.timer); //every time na mag shoot si champ, add a 2s cooldown para balanced
+    }, this.timerShot); //every time na mag shoot si champ, add a 2s cooldown para balanced
   }
 
   animateShot() {
@@ -311,7 +315,7 @@ class Champion {
     const shoot = () => {
       if (turret.alive) {
         //if alive, let the turret shoot
-        this.shootAtChamp(turret);
+        this.shootChamp(turret);
       } else {
         //else tanggalin na natin yung ability to shoot
         clearInterval(turret.shootingInterval);
@@ -338,7 +342,8 @@ class Champion {
 
     turret.animation = requestAnimationFrame(updateTurret);
   }
-  shootAtChamp(turret) {
+  shootChamp(turret) {
+    //sets the array
     const turretShot = {
       x: turret.x,
       y: turret.y,
@@ -357,7 +362,9 @@ class Champion {
     turretShot.speedY = (deltaY / distance) * turretShot.speed;
 
     this.turretShots.push(turretShot); //push sa turretShot array
-
+  }
+  animateTurretShot() {
+    //animates the shots
     const updateTurretShot = () => {
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       this.drawChamp();
@@ -390,10 +397,8 @@ class Champion {
           i--;
         }
       }
-
       requestAnimationFrame(() => updateTurretShot());
     };
-
     updateTurretShot();
   }
   drawTurret(turret) {
@@ -487,11 +492,11 @@ class Champion {
     this.lvlBoard.innerHTML = "Lvl: " + this.level;
   }
   attackFrenzy() {
-    this.timer = 1000;
+    this.timerShot = 1000;
     this.allowShot = true;
-    this.timer = 0;
+    this.timerShot = 0;
     setTimeout(() => {
-      this.timer = 1000;
+      this.timerShot = 1000;
     }, 5000);
   }
   render() {
@@ -511,6 +516,53 @@ class Champion {
       this.drawShot(turretShots);
     }
   }
+  timers() {
+    setInterval(() => {
+      //this interval spawns 1 enemy every 500ms
+      this.spawnEnemy();
+    }, this.timerEnemy);
+
+    setInterval(() => {
+      this.spawnTurrets();
+    }, this.timerTurret);
+
+    setInterval(() => {
+      this.events.style.visibility = "visible";
+      this.events.innerHTML = "Enemies will move faster now.";
+      for (const enemies of this.enemy) {
+        enemies.speed += 0.5;
+      }
+
+      setTimeout(() => {
+        this.events.style.visibility = "hidden";
+      }, 4000);
+    }, 30000);
+
+    setInterval(() => {
+      this.events.style.visibility = "visible";
+      this.events.innerHTML =
+        "Turrets will spawn faster now, they will also shoot faster now.";
+      this.timerTurret -= 500;
+      for (const shots of this.turretShots) {
+        shots.speed += 1;
+      }
+
+      setTimeout(() => {
+        this.events.style.visibility = "hidden";
+      }, 4000);
+    }, 60000);
+  }
+
+  gameTime() {
+    setInterval(() => {
+      const currentTime = Date.now();
+      const elapsedTime = currentTime - this.startTime;
+      const minutes = Math.floor(elapsedTime / 60000); // Convert milliseconds to minutes
+      const seconds = ((elapsedTime % 60000) / 1000).toFixed(0); // Convert remaining milliseconds to seconds
+
+      this.timeDiv.innerHTML = `Game Time: ${minutes}m ${seconds}s`;
+    }, 500); // Update every second
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -519,16 +571,19 @@ document.addEventListener("DOMContentLoaded", () => {
   let lvlBoard = document.getElementById("lvl");
   let desc = document.getElementById("desc");
   let play = document.getElementById("play");
+  let time = document.getElementById("time");
 
   scoreboard.style.visibility = "hidden";
   expBoard.style.visibility = "hidden";
   lvlBoard.style.visibility = "hidden";
+  time.style.visibility = "hidden";
 
   play.addEventListener("click", () => {
     desc.style.visibility = "hidden";
     scoreboard.style.visibility = "visible";
     expBoard.style.visibility = "visible";
     lvlBoard.style.visibility = "visible";
+    time.style.visibility = "visible";
     play.style.visibility = "hidden";
     const champion = new Champion();
   });
