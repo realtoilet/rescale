@@ -2,7 +2,7 @@
 
 body {
   overflow: hidden;
-  background-color: rgba(58, 57, 57, 0.733);
+  background-color: rgb(4, 255, 46);
   font-family: "Press Start 2P";
 }
 
@@ -22,7 +22,8 @@ html {
 .score,
 .exp,
 .lvl,
-.time {
+.time,
+.frenzycount {
   position: absolute;
   transform: translate(-50%, -50%);
   font-size: 20px;
@@ -63,4 +64,8 @@ html {
 .time {
   left: 20%;
   top: 30%;
+}
+.frenzycount {
+  left: 20%;
+  top: 35%;
 }

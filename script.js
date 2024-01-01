@@ -20,16 +20,21 @@ class Champion {
     this.lvlBoard = document.getElementById("lvl");
     this.events = document.getElementById("gameEvent");
     this.timeDiv = document.getElementById("time");
+    this.frenzyDiv = document.getElementById("frenzycount");
 
     this.currScore = 0; //current score ni user
     this.champSize = 30; //size ng champ / character
     this.champColor = "blue"; //color ng champ / character
+    this.oldX = 0;
+    this.oldY = 0;
     this.mousePos = { x: 0, y: 0 }; //default pos of the mouseX and mouseY
     this.shots = []; // array of shots. para madami lumabas at magamit
     this.turrets = [];
     this.turretShots = [];
     this.enemy = []; // array of enemy, para madami din
     this.allowShot = true; //checks if pwede mag shoot or naw
+    this.allowFrenzy = true;
+    this.frenzyCount = 0;
     this.level = 1;
     this.levelExpReq = 100;
     this.currentExp = 0;
@@ -75,6 +80,14 @@ class Champion {
           this.shoot();
         }
       }
+
+      if (event.key === "w" || event.key === "W") {
+        if (this.allowFrenzy) {
+          this.attackFrenzy();
+        } else {
+          return;
+        }
+      }
     });
 
     document.addEventListener("click", (event) => {
@@ -88,46 +101,50 @@ class Champion {
   }
 
   moveChamp(targetX, targetY) {
-    //movechamp moves the champ to the given x and y from the click listener
-    const champX = this.champ.x; //takes the current x (or horizontal) of the champ
-    const champY = this.champ.y; //takes the current y (or vertical) of the champ
+    if (targetX !== this.oldX && targetY !== this.oldY) {
+      //movechamp moves the champ to the given x and y from the click listener
+      const champX = this.champ.x; //takes the current x (or horizontal) of the champ
+      const champY = this.champ.y; //takes the current y (or vertical) of the champ
 
-    const deltaX = targetX - champX; //gano kalayo ang distance x kay champ x
-    const deltaY = targetY - champY; //gano kalayo ang distance y kay champ y
-    this.rotation = Math.atan2(deltaY, deltaX); //old code idek what this was for
+      const deltaX = targetX - champX; //gano kalayo ang distance x kay champ x
+      const deltaY = targetY - champY; //gano kalayo ang distance y kay champ y
+      this.rotation = Math.atan2(deltaY, deltaX); //old code idek what this was for
 
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); //gano kalayo ang total distance ni champ sa target click
-    const speed = 0.12; //speed ni champ
-    const duration = distance / speed; //how long itll take for champ to go to distance
-    let initTime; //initial time
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); //gano kalayo ang total distance ni champ sa target click
+      const speed = 0.12; //speed ni champ
+      const duration = distance / speed; //how long itll take for champ to go to distance
+      let initTime; //initial time
 
-    const updateMove = (currTime) => {
-      if (!initTime) {
-        initTime = currTime; //if walang value ang inittime then set it as the curr time
-      }
+      const updateMove = (currTime) => {
+        if (!initTime) {
+          initTime = currTime; //if walang value ang inittime then set it as the curr time
+        }
 
-      const time = currTime - initTime; //total time of the travel
-      const progress = Math.min(time / duration, 1); // if 1 then its animating if no then its not
-      const easeOut = (t) => 1 - --t * t * t * t; //para lang sa animation
+        const time = currTime - initTime; //total time of the travel
+        const progress = Math.min(time / duration, 1); // if 1 then its animating if no then its not
+        const easeOut = (t) => 1 - --t * t * t * t; //para lang sa animation
 
-      this.champ.x = champX + deltaX * easeOut(progress); //the new x of the champ
-      this.champ.y = champY + deltaY * easeOut(progress); //the new y of the champ
+        this.champ.x = champX + deltaX * easeOut(progress); //the new x of the champ
+        this.champ.y = champY + deltaY * easeOut(progress); //the new y of the champ
 
-      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); //clears the canvas for the animation
-      this.drawChamp(); //draws the champion, para mag animate while being moved
-      this.render();
-      if (progress < 1) {
-        //if less than 1 then move it
-        this.currAnim = requestAnimationFrame(updateMove);
-        requestAnimationFrame(this.animateShot);
-      } else {
-        this.isAnimating = false;
-        this.collisionUpd();
-      }
-    };
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); //clears the canvas for the animation
+        this.drawChamp(); //draws the champion, para mag animate while being moved
+        this.render();
+        if (progress < 1) {
+          //if less than 1 then move it
+          this.currAnim = requestAnimationFrame(updateMove);
+          requestAnimationFrame(this.animateShot);
+        } else {
+          this.isAnimating = false;
+          this.collisionUpd();
+        }
+      };
 
-    this.isAnimating = true;
-    this.currAnim = requestAnimationFrame(updateMove);
+      this.isAnimating = true;
+      this.currAnim = requestAnimationFrame(updateMove);
+      this.oldX = this.champ.x;
+      this.oldY = this.champ.y;
+    }
   }
 
   shoot() {
@@ -349,7 +366,7 @@ class Champion {
       y: turret.y,
       size: 8,
       color: "yellow",
-      speed: 5,
+      speed: 10,
       animation: null,
     }; //shots ng turret properties
 
@@ -481,7 +498,7 @@ class Champion {
 
   userLevel() {
     if (this.currentExp >= this.levelExpReq) {
-      this.attackFrenzy();
+      this.frenzyCount += 1;
       this.level += 1;
       this.levelExpReq += 100;
       this.currentExp = 0;
@@ -490,14 +507,24 @@ class Champion {
     this.expBoard.innerHTML =
       "Exp: " + this.currentExp + "/" + this.levelExpReq;
     this.lvlBoard.innerHTML = "Lvl: " + this.level;
+    this.frenzyDiv.innerHTML = "Frenzy Count: " + this.frenzyCount;
   }
   attackFrenzy() {
-    this.timerShot = 1000;
-    this.allowShot = true;
-    this.timerShot = 0;
-    setTimeout(() => {
-      this.timerShot = 1000;
-    }, 5000);
+    if (this.frenzyCount > 0) {
+      if (this.allowFrenzy) {
+        this.allowFrenzy = false;
+        this.frenzyCount -= 1;
+        this.allowShot = true;
+        this.timerShot = 0;
+        setTimeout(() => {
+          this.timerShot = 1000;
+          this.allowFrenzy = true;
+        }, 5000);
+      } else {
+        return;
+      }
+    }
+    this.frenzyDiv.innerHTML = "Frenzy Count: " + this.frenzyCount;
   }
   render() {
     //renders all the fucking shit
@@ -572,11 +599,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let desc = document.getElementById("desc");
   let play = document.getElementById("play");
   let time = document.getElementById("time");
+  let frenzy = document.getElementById("frenzycount");
 
   scoreboard.style.visibility = "hidden";
   expBoard.style.visibility = "hidden";
   lvlBoard.style.visibility = "hidden";
   time.style.visibility = "hidden";
+  frenzy.style.visibility = "hidden";
 
   play.addEventListener("click", () => {
     desc.style.visibility = "hidden";
@@ -585,6 +614,8 @@ document.addEventListener("DOMContentLoaded", () => {
     lvlBoard.style.visibility = "visible";
     time.style.visibility = "visible";
     play.style.visibility = "hidden";
+    frenzy.style.visibility = "visible";
+
     const champion = new Champion();
   });
 });
