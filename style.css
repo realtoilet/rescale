@@ -2,8 +2,12 @@
 
 body {
   overflow: hidden;
-  background-color: BLACK;
-  font-family: "Press Start 2P";
+  background-image: url('galaxy.png');
+  background-repeat: no-repeat;
+  background-attachment: fixed;  
+  background-size: cover;
+  /* background-color: BLACK; */
+  font-family: "Press Start 2P";  
 }
 
 .gameCanvas {
