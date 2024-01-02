@@ -11,6 +11,10 @@
           - Instead of giving the user frenzy, give it as a consumable
           - Add hextech teleport shit */
 
+function togglePopup(){
+  document.getElementById("popup1").classList.toggle("active");
+}//presents our game description?instructions to the user
+
 class Champion {
   constructor() {
     this.canvas = document.getElementById("gameCanvas"); //main canvas ng game, kung saan dito nangyayari yung gameplay

@@ -13,19 +13,29 @@
     <div class="lvl" id="lvl">Level: 1</div>
     <div class="exp" id="exp">Exp: 0/100</div>
     <div class="frenzycount" id="frenzycount">Frenzy Count: 0</div>
-    <div class="desc" id="desc">
-      - Left click on the screen to move the blue circle. <br /><br />
-      - Shoot the enemies, Aim on them and press Q. <br /><br />
-      - Each shot has 1 second cooldown. <br /><br />
-      - Enemies will spawn every 1 second, and they dont despawn. <br /><br />
-      - Shooting enemies gives +50 exp and +20 level exp. <br /><br />
-      - Every time you level up, your frenzy count goes up by 1. <br /><br />
-      - Pressing W will trigger the frenzy mode, where the user can hold the
-      shoot key to burst the enemies, last 5 seconds. <br /><br />
-      - Gold circles are turrets, the longer they stay alive, the faster their
-      shots become. <br /><br />
-      - Shooting turrets gives +100 exp and +50 level exp.
+
+    <div class="popupDesc" id="popup1">
+      <div class="overlay">
+        <div class="desc" id="desc">
+          <div class="closeBtn" onclick="togglePopup()">&times;</div>
+          <h3>Description</h3>
+          - Left click on the screen to move the blue circle. <br /><br />
+          - Shoot the enemies, Aim on them and press Q. <br /><br />
+          - Each shot has 1 second cooldown. <br /><br />
+          - Enemies will spawn every 1 second, and they dont despawn. <br /><br />
+          - Shooting enemies gives +50 exp and +20 level exp. <br /><br />
+          - Every time you level up, your frenzy count goes up by 1. <br /><br />
+          - Pressing W will trigger the frenzy mode, where the user can hold the
+          shoot key to burst the enemies, last 5 seconds. <br /><br />
+          - Gold circles are turrets, the longer they stay alive, the faster their
+          shots become. <br /><br />
+          - Shooting turrets gives +100 exp and +50 level exp.
+        </div>
+      </div>
     </div>
+    <button onclick="togglePopup()" id="btnTogglePopup">Show Description</button>
+    
+    
 
     <div class="play" id="play">P L A Y</div>
     <div class="gameEvent" id="gameEvent">
