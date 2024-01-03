@@ -8,7 +8,6 @@
 
 /* TODO:
           - Add 3 hit enemies
-          - Instead of giving the user frenzy, give it as a consumable
           - Add hextech teleport shit */
 
 class Champion {
@@ -24,7 +23,7 @@ class Champion {
 
     this.currScore = 0; //current score ni user
     this.champSize = 30; //size ng champ / character
-    this.champColor = "blue"; //color ng champ / character
+    this.champColor = "rgb(93, 93, 175)"; //color ng champ / character
     this.oldX = 0;
     this.oldY = 0;
     this.mousePos = { x: 0, y: 0 }; //default pos of the mouseX and mouseY
@@ -184,51 +183,43 @@ class Champion {
   animateShot() {
     try {
       const updShot = () => {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); //clears the canvas
-        this.drawChamp(); //draws the champion para ma animate yung shots
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.drawChamp();
 
-        for (let i = 0; i < this.shots.length; i++) {
-          //iterates thru the shots array
-          const shot = this.shots[i]; //takes the current shot
-          shot.x += shot.speedX; //sets the x to the speed for x
-          shot.y += shot.speedY; //sets the y to the speed for y
-          this.drawShot(shot); //draws the shot
+        for (let i = this.shots.length - 1; i >= 0; i--) {
+          const shot = this.shots[i];
+          shot.x += shot.speedX;
+          shot.y += shot.speedY;
+          this.drawShot(shot);
 
-          for (let j = 0; j < this.enemy.length; j++) {
-            //collision block, iterates thru the enemy array
-            const enemy = this.enemy[j]; //takes the current enemy
+          for (let j = this.enemy.length - 1; j >= 0; j--) {
+            const enemy = this.enemy[j];
             const distance = Math.sqrt(
               (shot.x - enemy.x) ** 2 + (shot.y - enemy.y) ** 2
-            ); //how far the shot and the enemy is
+            );
             if (distance < shot.size + enemy.size) {
-              //if mas konti ang size ni shot and enemy added then it means nagkaroon ng collision
-              this.shots.splice(i, 1); //remove the current shot and 1 element
-              this.enemy.splice(j, 1); //remove the current enemy and 1 element
-              i--; // -1 to the shot
-              j--; // -1 to the enemy
-              this.currScore += 50; //weehoo +50 sa score baby
+              this.shots.splice(i, 1);
+              this.enemy.splice(j, 1);
+              this.currScore += 50;
               this.currentExp += 20;
-              this.scoreboard.innerHTML = "Score: " + this.currScore; //set the current html text ng score
+              this.scoreboard.innerHTML = "Score: " + this.currScore;
               this.userLevel();
               break;
             }
           }
-          for (let j = 0; j < this.turrets.length; j++) {
-            //collision block, iterates thru the turrets array
-            const turret = this.turrets[j]; //takes the current turret
+
+          for (let j = this.turrets.length - 1; j >= 0; j--) {
+            const turret = this.turrets[j];
             const distance = Math.sqrt(
               (shot.x - turret.x) ** 2 + (shot.y - turret.y) ** 2
-            ); //how far the shot and the turret is
+            );
             if (distance < shot.size + turret.size) {
-              //if mas konti ang size ni shot and enemy added then it means nagkaroon ng collision
               turret.alive = false;
-              this.shots.splice(i, 1); //remove the current shot and 1 element
-              this.turrets.splice(j, 1); //remove the current turret and 1 element
-              i--; // -1 to the shot
-              j--; // -1 to the enemy
-              this.currScore += 100; //weehoo +100 sa score baby
+              this.shots.splice(i, 1);
+              this.turrets.splice(j, 1);
+              this.currScore += 100;
               this.currentExp += 50;
-              this.scoreboard.innerHTML = "Score: " + this.currScore; //set the current html text ng score
+              this.scoreboard.innerHTML = "Score: " + this.currScore;
               this.userLevel();
               break;
             }
@@ -240,15 +231,17 @@ class Champion {
             shot.y < 0 ||
             shot.y > this.canvas.height
           ) {
-            this.shots.splice(i, 1); //if out of bounds na sa canvas then just remove it to lessen the render
-            i--; // -1  sa shot
+            this.shots.splice(i, 1);
           }
         }
+
         requestAnimationFrame(() => updShot());
       };
 
       updShot();
-    } catch (error) {} // wag tanggalin. masisira ang buhay mo.
+    } catch (error) {
+      // Handle errors if needed
+    }
   }
 
   spawnEnemy() {
@@ -257,7 +250,7 @@ class Champion {
       x: Math.random() * this.canvas.width,
       y: Math.random() * this.canvas.height,
       size: 15,
-      color: "red",
+      color: "rgb(223, 149, 149)",
       speed: 1.5,
       isActive: true,
     };
@@ -321,7 +314,7 @@ class Champion {
       x: Math.random() * this.canvas.width,
       y: Math.random() * this.canvas.height,
       size: 30,
-      color: "orange",
+      color: "rgb(231, 152, 5)",
       speed: 15,
       alive: true,
       animation: null,
@@ -504,7 +497,7 @@ class Champion {
     if (this.currentExp >= this.levelExpReq) {
       this.frenzyCount += 1;
       this.level += 1;
-      this.levelExpReq += 100;
+      this.levelExpReq += 50;
       this.currentExp = 0;
     }
 
@@ -558,8 +551,9 @@ class Champion {
     }, this.timerTurret);
 
     setInterval(() => {
+      this.events.innerHTML = "";
       this.events.style.visibility = "visible";
-      this.events.innerHTML = "Enemies will move faster now.";
+      this.events.innerHTML += "\nEnemies will move faster now.";
       for (const enemies of this.enemy) {
         enemies.speed += 0.5;
       }
@@ -571,8 +565,8 @@ class Champion {
 
     setInterval(() => {
       this.events.style.visibility = "visible";
-      this.events.innerHTML =
-        "Turrets will spawn faster now, they will also shoot faster now.";
+      this.events.innerHTML +=
+        "\nTurrets will spawn faster now, they will also shoot faster now.";
       this.timerTurret -= 500;
       for (const shots of this.turretShots) {
         shots.speed += 1;
@@ -581,7 +575,7 @@ class Champion {
       setTimeout(() => {
         this.events.style.visibility = "hidden";
       }, 4000);
-    }, 60000);
+    }, 40000);
   }
 
   gameTime() {
