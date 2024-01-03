@@ -11,6 +11,10 @@
           - Instead of giving the user frenzy, give it as a consumable
           - Add hextech teleport shit */
 
+function togglePopup(){
+  document.getElementById("popup1").classList.toggle("active");
+}//presents our game description/instructions to the user
+
 class Champion {
   constructor() {
     this.canvas = document.getElementById("gameCanvas"); //main canvas ng game, kung saan dito nangyayari yung gameplay
@@ -21,6 +25,7 @@ class Champion {
     this.events = document.getElementById("gameEvent");
     this.timeDiv = document.getElementById("time");
     this.frenzyDiv = document.getElementById("frenzycount");
+    
 
     this.currScore = 0; //current score ni user
     this.champSize = 30; //size ng champ / character
@@ -600,10 +605,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let scoreboard = document.getElementById("score"); //scoreboard of the game
   let expBoard = document.getElementById("exp");
   let lvlBoard = document.getElementById("lvl");
-  let desc = document.getElementById("desc");
+  let desc = document.getElementById("btnTogglePopup");
   let play = document.getElementById("play");
   let time = document.getElementById("time");
   let frenzy = document.getElementById("frenzycount");
+  let gameTitle = document.getElementById("Title");
 
   scoreboard.style.visibility = "hidden";
   expBoard.style.visibility = "hidden";
@@ -612,6 +618,7 @@ document.addEventListener("DOMContentLoaded", () => {
   frenzy.style.visibility = "hidden";
 
   play.addEventListener("click", () => {
+    gameTitle.classList.add('hide');
     desc.style.visibility = "hidden";
     scoreboard.style.visibility = "visible";
     expBoard.style.visibility = "visible";
@@ -619,7 +626,17 @@ document.addEventListener("DOMContentLoaded", () => {
     time.style.visibility = "visible";
     play.style.visibility = "hidden";
     frenzy.style.visibility = "visible";
+    
 
     const champion = new Champion();
   });
+  gameTitle.addEventListener('transitionend', () => {
+    // Check if the 'hide' class is present and remove the element if needed
+    if (gameTitle.classList.contains('hide')) {
+      gameTitle.remove();
+    }
+  });
 });
+
+
+
