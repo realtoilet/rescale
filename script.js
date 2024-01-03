@@ -10,9 +10,9 @@
           - Add 3 hit enemies
           - Add hextech teleport shit */
 
-function togglePopup(){
+function togglePopup() {
   document.getElementById("popup1").classList.toggle("active");
-}//presents our game description/instructions to the user
+} //presents our game description/instructions to the user
 
 class Champion {
   constructor() {
@@ -24,10 +24,11 @@ class Champion {
     this.events = document.getElementById("gameEvent");
     this.timeDiv = document.getElementById("time");
     this.frenzyDiv = document.getElementById("frenzycount");
-    
 
     this.currScore = 0; //current score ni user
     this.champSize = 30; //size ng champ / character
+    this.enemySpeed = 1.5;
+    this.shotSpeed = 10;
     this.champColor = "rgb(93, 93, 175)"; //color ng champ / character
     this.oldX = 0;
     this.oldY = 0;
@@ -256,7 +257,7 @@ class Champion {
       y: Math.random() * this.canvas.height,
       size: 15,
       color: "rgb(223, 149, 149)",
-      speed: 1.5,
+      speed: this.enemySpeed,
       isActive: true,
     };
 
@@ -368,7 +369,7 @@ class Champion {
       y: turret.y,
       size: 8,
       color: "yellow",
-      speed: 10,
+      speed: this.shotSpeed,
       animation: null,
     }; //shots ng turret properties
 
@@ -562,7 +563,7 @@ class Champion {
       for (const enemies of this.enemy) {
         enemies.speed += 0.5;
       }
-
+      this.enemySpeed += 0.5;
       setTimeout(() => {
         this.events.style.visibility = "hidden";
       }, 4000);
@@ -576,7 +577,7 @@ class Champion {
       for (const shots of this.turretShots) {
         shots.speed += 1;
       }
-
+      this.shotSpeed += 1;
       setTimeout(() => {
         this.events.style.visibility = "hidden";
       }, 4000);
@@ -612,7 +613,7 @@ document.addEventListener("DOMContentLoaded", () => {
   frenzy.style.visibility = "hidden";
 
   play.addEventListener("click", () => {
-    gameTitle.classList.add('hide');
+    gameTitle.classList.add("hide");
     desc.style.visibility = "hidden";
     scoreboard.style.visibility = "visible";
     expBoard.style.visibility = "visible";
@@ -620,17 +621,13 @@ document.addEventListener("DOMContentLoaded", () => {
     time.style.visibility = "visible";
     play.style.visibility = "hidden";
     frenzy.style.visibility = "visible";
-    
 
     const champion = new Champion();
   });
-  gameTitle.addEventListener('transitionend', () => {
+  gameTitle.addEventListener("transitionend", () => {
     // Check if the 'hide' class is present and remove the element if needed
-    if (gameTitle.classList.contains('hide')) {
+    if (gameTitle.classList.contains("hide")) {
       gameTitle.remove();
     }
   });
 });
-
-
-
