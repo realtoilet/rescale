@@ -2,8 +2,11 @@
 
 body {
   overflow: hidden;
-  background-color: BLACK;
-  font-family: "Press Start 2P";
+  background-image: url('galaxy.png');
+  background-repeat: no-repeat;
+  background-attachment: fixed;  
+  background-size: cover;
+  font-family: "Press Start 2P";  
 }
 
 .gameCanvas {
@@ -40,23 +43,6 @@ html {
   left: 20%;
   top: 25%;
 }
-.desc {
-  color: white;
-  width: 500px;
-  height: 500px;
-  left: 65%;
-  top: 5%;
-  position: absolute;
-}
-.play {
-  color: white;
-  width: 300px;
-  height: 200px;
-  font-size: 40px;
-  left: 5%;
-  top: 5%;
-  position: absolute;
-}
 .gameEvent {
   color: white;
   position: absolute;
@@ -72,4 +58,120 @@ html {
 .frenzycount {
   left: 20%;
   top: 35%;
+}
+.GameTitle{
+  color: white;
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  background: rgba(0, 0, 0, 0.7);
+  transition: opacity 1s ease, visibility  1s;
+}
+.GameTitle.hide {
+  opacity: 0;
+  visibility: hidden;
+}
+.GameTitle:hover{
+  color: black;
+  text-shadow: 
+  -1px -1px 0 white,  
+  1px -1px 0 white,
+  -1px 1px 0 white,
+  1px 1px 0 white;
+}
+.play {
+  position: absolute;
+  color: white;
+  width: 400px;
+  height: 100px;
+  font-size: 40px;
+  text-align: center;
+  line-height: 100px; 
+  padding: 5px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid white;
+  border-radius: 10px;
+  transition:  0.3s ease; 
+}
+
+.play:hover{
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+#btnTogglePopup{
+  color: white;
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  padding: 10px;
+  transform: translate(-50%, -50%);
+  font-family: "Press Start 2P";  
+  background: #222;
+  border: 1px solid white;
+  border-radius: 5px;
+  box-shadow: 0 0 7px rgba(255, 255, 255, 0.8);
+  transition:  0.3s ease; 
+}
+#btnTogglePopup:hover{
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+}
+.popupDesc .overlay{
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1;
+  display: none;
+}
+
+.popupDesc .desc{
+  color: white;
+  width: 500px;
+  height: 500px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  z-index: 2;
+  text-align: center;
+  padding: 20px;
+  padding-bottom: 50px;
+  background: rgba(45, 40, 40, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(240, 236, 236, 0.226);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid rgba(45, 40, 40, 0.3);
+}
+
+.popupDesc .closeBtn{
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  width: 30px;
+  height: 30px;
+  background: #222;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 50%;
+}
+
+.popupDesc.active .overlay{
+ display: block;
+}
+
+.popupDesc.active .desc{
+  transition: all 300ms ease-in-out;
+  transform: translate(-50%, -50%) scale(1);
+
 }
