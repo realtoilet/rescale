@@ -29,7 +29,7 @@ class Champion {
     this.champSize = 30; //size ng champ / character
     this.enemySpeed = 1.5;
     this.shotSpeed = 10;
-    this.champColor = "rgb(93, 93, 175)"; //color ng champ / character
+    this.champColor = "rgb(193, 207, 253)"; //color ng champ / character
     this.oldX = 0;
     this.oldY = 0;
     this.mousePos = { x: 0, y: 0 }; //default pos of the mouseX and mouseY
@@ -43,7 +43,7 @@ class Champion {
     this.level = 1;
     this.levelExpReq = 100;
     this.currentExp = 0;
-    this.timerShot = 1000;
+    this.timerShot = 800;
     this.timerEnemy = 1000;
     this.timerTurret = 5000;
     this.gameover = false;
@@ -103,6 +103,8 @@ class Champion {
 
       if (this.oldX !== event.clientX && this.oldY !== event.clientY) {
         this.moveChamp(event.clientX, event.clientY); //gives the x and y of the mouse when the click was received
+      } else {
+        return;
       }
     });
   }
@@ -151,6 +153,7 @@ class Champion {
       this.isAnimating = true;
       this.currAnim = requestAnimationFrame(updateMove);
     } else {
+      return;
     }
     this.oldX = this.champ.x;
     this.oldY = this.champ.y;
@@ -166,8 +169,8 @@ class Champion {
       //properties ng skillshot / shot
       x: this.champ.x, //starts sa current x ng champ
       y: this.champ.y, //starts the current y ng champ
-      size: 10,
-      color: "rgb(221, 44, 221)",
+      size: 5,
+      color: "white",
       speed: 20,
       animation: null, //no animation yet
     };
@@ -189,25 +192,29 @@ class Champion {
   animateShot() {
     try {
       const updShot = () => {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.drawChamp();
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); //clear the canvas
+        this.drawChamp(); //draw the champ
 
         for (let i = this.shots.length - 1; i >= 0; i--) {
-          const shot = this.shots[i];
-          shot.x += shot.speedX;
+          //loop thru the shots array
+          const shot = this.shots[i]; //take the curr index
+          shot.x += shot.speedX; //set the curr index x and y to the speedX and speedY
           shot.y += shot.speedY;
-          this.drawShot(shot);
+          this.drawShot(shot); //draw the shot para smooch
 
           for (let j = this.enemy.length - 1; j >= 0; j--) {
-            const enemy = this.enemy[j];
+            //loop thru the enemy array
+            const enemy = this.enemy[j]; //take the curr enemy index
             const distance = Math.sqrt(
+              //how far the curr enemy is to the curr shot
               (shot.x - enemy.x) ** 2 + (shot.y - enemy.y) ** 2
             );
             if (distance < shot.size + enemy.size) {
-              this.shots.splice(i, 1);
-              this.enemy.splice(j, 1);
-              this.currScore += 50;
-              this.currentExp += 20;
+              //if mas konti ang distance kaisa sa size ng shot and enemy added up, nagka collision
+              this.shots.splice(i, 1); //remove 1 from the shot
+              this.enemy.splice(j, 1); //remove 1 from the enemy
+              this.currScore += 50; // +50 sa score
+              this.currentExp += 20; // +20 sa exp
               this.scoreboard.innerHTML = "Score: " + this.currScore;
               this.userLevel();
               break;
@@ -215,11 +222,12 @@ class Champion {
           }
 
           for (let j = this.turrets.length - 1; j >= 0; j--) {
-            const turret = this.turrets[j];
+            const turret = this.turrets[j]; //loop thru the turrets array and take the curr turret
             const distance = Math.sqrt(
-              (shot.x - turret.x) ** 2 + (shot.y - turret.y) ** 2
+              (shot.x - turret.x) ** 2 + (shot.y - turret.y) ** 2 //take the distance of the shsot and the turret
             );
             if (distance < shot.size + turret.size) {
+              //same logic sa enemy lang naman to so fuck you very much
               turret.alive = false;
               this.shots.splice(i, 1);
               this.turrets.splice(j, 1);
@@ -246,7 +254,7 @@ class Champion {
 
       updShot();
     } catch (error) {
-      // Handle errors if needed
+      //WAG NIYO TANGGALIN TONG HAYOP NA TO PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE PLEASE
     }
   }
 
@@ -330,7 +338,7 @@ class Champion {
     this.turrets.push(turret); //push sa turret array
     this.updateTurretAnimation(turret); //animation for shooting
 
-    const shootInterval = 2000;
+    const shootInterval = 1600;
 
     const shoot = () => {
       if (turret.alive) {
@@ -367,7 +375,7 @@ class Champion {
     const turretShot = {
       x: turret.x,
       y: turret.y,
-      size: 8,
+      size: 4,
       color: "yellow",
       speed: this.shotSpeed,
       animation: null,
@@ -422,18 +430,42 @@ class Champion {
     updateTurretShot();
   }
   drawTurret(turret) {
+    const triangleSize = turret.size;
+    const halfSize = triangleSize / 2;
+
+    const angle = Math.atan2(this.champ.y - turret.y, this.champ.x - turret.x);
+
+    const x1 = turret.x - halfSize * Math.cos(angle);
+    const y1 = turret.y - halfSize * Math.sin(angle);
+
+    const x2 = turret.x + halfSize * Math.cos(angle);
+    const y2 = turret.y + halfSize * Math.sin(angle);
+
+    const x3 = turret.x + halfSize * Math.cos(angle + Math.PI / 1.5);
+    const y3 = turret.y + halfSize * Math.sin(angle + Math.PI / 1.5);
+
     this.ctx.beginPath();
-    this.ctx.arc(turret.x, turret.y, turret.size, 0, 2 * Math.PI);
-    this.ctx.fillStyle = turret.color;
+    this.ctx.moveTo(x1, y1);
+    this.ctx.lineTo(x2, y2);
+    this.ctx.lineTo(x3, y3);
+
+    this.ctx.fillStyle = "rgba(0, 0, 0)";
     this.ctx.fill();
+
+    this.ctx.strokeStyle = turret.color;
+    this.ctx.lineWidth = 4;
+    this.ctx.stroke();
     this.ctx.closePath();
   }
+
   drawEnemy(circle) {
     //creates the circle (red) for enemy
     this.ctx.beginPath();
     this.ctx.arc(circle.x, circle.y, circle.size, 0, 2 * Math.PI);
-    this.ctx.fillStyle = circle.color;
-    this.ctx.fill();
+    this.ctx.strokeStyle = circle.color;
+    this.ctx.lineWidth = 3;
+
+    this.ctx.stroke();
     this.ctx.closePath();
   }
 
@@ -543,7 +575,7 @@ class Champion {
       this.drawTurret(turret);
     }
     for (const turretShots of this.turretShots) {
-      this.drawShot(turretShots);
+      this.drawShot(turretShots); //animates the shots
     }
   }
   timers() {
@@ -588,11 +620,11 @@ class Champion {
     setInterval(() => {
       const currentTime = Date.now();
       const elapsedTime = currentTime - this.startTime;
-      const minutes = Math.floor(elapsedTime / 60000); // Convert milliseconds to minutes
-      const seconds = ((elapsedTime % 60000) / 1000).toFixed(0); // Convert remaining milliseconds to seconds
+      const minutes = Math.floor(elapsedTime / 60000); // convert milliseconds to minutes
+      const seconds = ((elapsedTime % 60000) / 1000).toFixed(0); // convert remaining milliseconds to seconds
 
       this.timeDiv.innerHTML = `Game Time: ${minutes}m ${seconds}s`;
-    }, 500); // Update every second
+    }, 500); // update every second
   }
 }
 
@@ -605,6 +637,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let time = document.getElementById("time");
   let frenzy = document.getElementById("frenzycount");
   let gameTitle = document.getElementById("Title");
+  let ingame = false;
 
   scoreboard.style.visibility = "hidden";
   expBoard.style.visibility = "hidden";
@@ -622,7 +655,12 @@ document.addEventListener("DOMContentLoaded", () => {
     play.style.visibility = "hidden";
     frenzy.style.visibility = "visible";
 
-    const champion = new Champion();
+    if (!ingame) {
+      const champion = new Champion();
+      ingame = true;
+    } else {
+      return;
+    }
   });
   gameTitle.addEventListener("transitionend", () => {
     // Check if the 'hide' class is present and remove the element if needed
