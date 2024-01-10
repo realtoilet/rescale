@@ -28,6 +28,7 @@ class Champion {
     this.currScore = 0; //current score ni user
     this.champSize = 30; //size ng champ / character
     this.enemySpeed = 1.5;
+    this.bigEnemySpeed = 3;
     this.shotSpeed = 10;
     this.champColor = "rgb(193, 207, 253)"; //color ng champ / character
     this.oldX = 0;
@@ -37,6 +38,9 @@ class Champion {
     this.turrets = [];
     this.turretShots = [];
     this.enemy = []; // array of enemy, para madami din
+    this.miniboss = [];
+    this.crates = [];
+    this.luck = 10;
     this.allowShot = true; //checks if pwede mag shoot or naw
     this.allowFrenzy = true;
     this.frenzyCount = 0;
@@ -46,6 +50,8 @@ class Champion {
     this.timerShot = 800;
     this.timerEnemy = 1000;
     this.timerTurret = 5000;
+    this.shotCount = 2;
+    this.oldShotCount = 2;
     this.gameover = false;
     this.startTime = Date.now();
 
@@ -165,28 +171,36 @@ class Champion {
       return;
     }
 
-    const skillShot = {
-      //properties ng skillshot / shot
-      x: this.champ.x, //starts sa current x ng champ
-      y: this.champ.y, //starts the current y ng champ
-      size: 5,
-      color: "white",
-      speed: 20,
-      animation: null, //no animation yet
-    };
+    for (let i = 0; i < this.shotCount; i++) {
+      //loop sa shotCount, shotCount basically tells how many shot we need to shoot
+      setTimeout(() => {
+        const skillShot = {
+          //properties ng skillshot / shot
+          x: this.champ.x, //starts sa current x ng champ
+          y: this.champ.y, //starts the current y ng champ
+          size: 5,
+          color: "white",
+          speed: 20,
+          animation: null,
+        };
 
-    const deltaX = this.mousePos.x - this.champ.x; // same sa delta x ni champ
-    const deltaY = this.mousePos.y - this.champ.y; //same sa delta y ni champ
-    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); //same lang din sa distance ng champ
-    skillShot.speedX = (deltaX / distance) * skillShot.speed; //the speed na need ng skillshot for x
-    skillShot.speedY = (deltaY / distance) * skillShot.speed; //the speed na need ng skillshot for y
+        const deltaX = this.mousePos.x - this.champ.x; // same sa delta x ni champ
+        const deltaY = this.mousePos.y - this.champ.y; //same sa delta y ni champ
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); //same lang din sa distance ng champ
+        skillShot.speedX = (deltaX / distance) * skillShot.speed; //the speed na need ng skillshot for x
+        skillShot.speedY = (deltaY / distance) * skillShot.speed;
 
-    this.shots.push(skillShot); //add the skillshot to the shots array
-    this.allowShot = false; //set the allowshot to false para di maka shoot
+        this.shots.push(skillShot); //lagay ang shots sa shots array
 
-    setTimeout(() => {
-      this.allowShot = true;
-    }, this.timerShot); //every time na mag shoot si champ, add a 2s cooldown para balanced
+        if (i === this.shotCount - 1) {
+          // if last shot na, lagay na natin yung delay on each shot
+          setTimeout(() => {
+            this.allowShot = true;
+          }, this.timerShot); //i timeout natin para may 2sec delay ang shots
+        }
+      }, i * 100); // and 100 delay on each shot
+    }
+    this.allowShot = false;
   }
 
   animateShot() {
@@ -239,6 +253,26 @@ class Champion {
             }
           }
 
+          for (let j = this.crates.length - 1; j >= 0; j--) {
+            const crate = this.crates[j]; //loop thru the turrets array and take the curr turret
+            const distance = Math.sqrt(
+              (shot.x - crate.x) ** 2 + (shot.y - crate.y) ** 2 //take the distance of the shsot and the turret
+            );
+            if (distance < shot.size + crate.size) {
+              //same logic sa enemy lang naman to so fuck you very much
+              this.shots.splice(i, 1);
+              this.crates.splice(j, 1);
+              let rLuck = Math.random() * 100;
+              if (rLuck <= this.luck) {
+                this.shotCount++;
+                this.oldShotCount++;
+              } else {
+                this.enemyHorde();
+              }
+              console.log(rLuck);
+              break;
+            }
+          }
           if (
             shot.x < 0 ||
             shot.x > this.canvas.width ||
@@ -296,6 +330,33 @@ class Champion {
             Enemy.x = nextEnemy.x + min * Math.cos(angle); //these two to avoid overlapping
             Enemy.y = nextEnemy.y + min * Math.sin(angle); //these two to avoid overlapping
           }
+        }
+      }
+      // Check for collision with turrets
+      for (const turret of this.turrets) {
+        const distTurret = Math.sqrt(
+          (Enemy.x - turret.x) ** 2 + (Enemy.y - turret.y) ** 2
+        );
+        const min = Enemy.size + turret.size;
+
+        if (distTurret < min) {
+          const angle = Math.atan2(Enemy.y - turret.y, Enemy.x - turret.x);
+          Enemy.x = turret.x + min * Math.cos(angle);
+          Enemy.y = turret.y + min * Math.sin(angle);
+        }
+      }
+
+      // Check for collision with crates
+      for (const crate of this.crates) {
+        const distCrate = Math.sqrt(
+          (Enemy.x - crate.x) ** 2 + (Enemy.y - crate.y) ** 2
+        );
+        const min = Enemy.size + crate.size;
+
+        if (distCrate < min) {
+          const angle = Math.atan2(Enemy.y - crate.y, Enemy.x - crate.x);
+          Enemy.x = crate.x + min * Math.cos(angle);
+          Enemy.y = crate.y + min * Math.sin(angle);
         }
       }
 
@@ -429,6 +490,26 @@ class Champion {
     };
     updateTurretShot();
   }
+  spawnCrates() {
+    const crates = {
+      x: Math.random() * this.canvas.width,
+      y: Math.random() * this.canvas.height,
+      size: 50,
+    };
+
+    this.crates.push(crates);
+  }
+
+  drawCrates(crates) {
+    this.ctx.beginPath();
+    this.ctx.rect(crates.x, crates.y, crates.size, crates.size);
+    this.ctx.fillStyle = "rgb(0,0,0)";
+    this.ctx.fill();
+    this.ctx.strokeStyle = "white";
+    this.ctx.lineWidth = 4;
+    this.ctx.stroke();
+    this.ctx.closePath();
+  }
   drawTurret(turret) {
     const triangleSize = turret.size;
     const halfSize = triangleSize / 2;
@@ -516,7 +597,32 @@ class Champion {
       }
     }
   }
+  enemyHorde() {
+    console.log("spawning horde");
+    this.timerEnemy = 40;
+    this.timerTurret = 50;
 
+    // spawn the enemies with the new timer
+    const spawnEnemyInterval = () => {
+      this.spawnEnemy();
+      setTimeout(spawnEnemyInterval, this.timerEnemy);
+    };
+
+    // spawn the turrets with the new timer
+    const spawnTurretInterval = () => {
+      this.spawnTurrets();
+      setTimeout(spawnTurretInterval, this.timerTurret);
+    };
+
+    spawnEnemyInterval();
+    spawnTurretInterval();
+
+    setTimeout(() => {
+      this.timerEnemy = 1000; //reset
+      this.timerTurret = 5000; //reset
+      console.log("horde stops");
+    }, 100); //reset after 100ms, should spawn around a few enemy and few turrets
+  }
   resetGame() {
     //resets everything to start over
     this.currScore = 0;
@@ -551,9 +657,13 @@ class Champion {
         this.frenzyCount -= 1;
         this.allowShot = true;
         this.timerShot = 0;
+        this.shotCount = 1;
+
+        const oldShotCount2 = this.oldShotCount;
         setTimeout(() => {
           this.timerShot = 1000;
           this.allowFrenzy = true;
+          this.shotCount = oldShotCount2;
         }, 5000);
       } else {
         return;
@@ -577,8 +687,16 @@ class Champion {
     for (const turretShots of this.turretShots) {
       this.drawShot(turretShots); //animates the shots
     }
+    for (const crate of this.crates) {
+      this.drawCrates(crate);
+    }
   }
   timers() {
+    if (this.crates.length !== 0) {
+      setInterval(() => {
+        this.crates.shift();
+      }, 10000);
+    }
     setInterval(() => {
       //this interval spawns 1 enemy every 500ms
       this.spawnEnemy();
@@ -588,6 +706,9 @@ class Champion {
       this.spawnTurrets();
     }, this.timerTurret);
 
+    setInterval(() => {
+      this.spawnCrates();
+    }, 30000);
     setInterval(() => {
       this.events.innerHTML = "";
       this.events.style.visibility = "visible";
