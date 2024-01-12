@@ -6,9 +6,10 @@
 
 //clear rect always before animating
 
+// THIS GAME ALWAYS SCALE, ITLL KEEP SCALING AS LONG AS THE GAME PROGRESS
+
 /* TODO:
-          - Add 3 hit enemies
-          - Add hextech teleport shit */
+          - maybe balancing? idk man this shit too hard in the long run cuz of the scaling */
 
 function togglePopup() {
   document.getElementById("popup1").classList.toggle("active");
@@ -30,7 +31,7 @@ class Champion {
     this.enemySpeed = 1.5;
     this.bigEnemySpeed = 3;
     this.shotSpeed = 10;
-    this.champColor = "rgb(193, 207, 253)"; //color ng champ / character
+    this.champColor = "#08B2E3"; //color ng champ / character
     this.oldX = 0;
     this.oldY = 0;
     this.mousePos = { x: 0, y: 0 }; //default pos of the mouseX and mouseY
@@ -43,6 +44,7 @@ class Champion {
     this.luck = 10;
     this.allowShot = true; //checks if pwede mag shoot or naw
     this.allowFrenzy = true;
+    this.spawnBoss = false;
     this.frenzyCount = 0;
     this.level = 1;
     this.levelExpReq = 100;
@@ -50,6 +52,7 @@ class Champion {
     this.timerShot = 800;
     this.timerEnemy = 1000;
     this.timerTurret = 5000;
+    this.timerBoss = 8000;
     this.shotCount = 2;
     this.oldShotCount = 2;
     this.gameover = false;
@@ -226,11 +229,20 @@ class Champion {
             if (distance < shot.size + enemy.size) {
               //if mas konti ang distance kaisa sa size ng shot and enemy added up, nagka collision
               this.shots.splice(i, 1); //remove 1 from the shot
-              this.enemy.splice(j, 1); //remove 1 from the enemy
-              this.currScore += 50; // +50 sa score
-              this.currentExp += 20; // +20 sa exp
-              this.scoreboard.innerHTML = "Score: " + this.currScore;
-              this.userLevel();
+              enemy.health -= 20;
+              if (enemy.health <= 0) {
+                this.enemy.splice(j, 1); //remove 1 from the enemy
+                if (enemy.type === "boss") {
+                  this.currScore += 100; // +100 sa score
+                  this.currentExp += 80; // +80 sa exp
+                } else {
+                  this.currScore += 50; // +50 sa score
+                  this.currentExp += 20; // +20 sa exp
+                }
+                this.scoreboard.innerHTML = "Score: " + this.currScore;
+                this.userLevel();
+                break;
+              }
               break;
             }
           }
@@ -293,15 +305,32 @@ class Champion {
   }
 
   spawnEnemy() {
-    const Enemy = {
-      //properties muna ni enemy
-      x: Math.random() * this.canvas.width,
-      y: Math.random() * this.canvas.height,
-      size: 15,
-      color: "rgb(223, 149, 149)",
-      speed: this.enemySpeed,
-      isActive: true,
-    };
+    let Enemy = {};
+    if (!this.spawnBoss) {
+      Enemy = {
+        //properties muna ni enemy
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height,
+        size: 15,
+        color: "#DA3E52",
+        speed: this.enemySpeed,
+        health: 20,
+        isActive: true,
+        type: "normal",
+      };
+    } else {
+      Enemy = {
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height,
+        size: 40,
+        color: "#EDA2F2",
+        speed: 4,
+        health: 100,
+        isActive: true,
+        type: "boss",
+      };
+      this.spawnBoss = false;
+    }
 
     const updateEnemy = () => {
       const deltaX = this.champ.x - Enemy.x; //distX
@@ -389,7 +418,7 @@ class Champion {
       x: Math.random() * this.canvas.width,
       y: Math.random() * this.canvas.height,
       size: 30,
-      color: "rgb(231, 152, 5)",
+      color: "#F4D35E",
       speed: 15,
       alive: true,
       animation: null,
@@ -639,10 +668,11 @@ class Champion {
 
   userLevel() {
     if (this.currentExp >= this.levelExpReq) {
+      let remainingExp = this.currentExp - 100;
       this.frenzyCount += 1;
       this.level += 1;
       this.levelExpReq += 50;
-      this.currentExp = 0;
+      this.currentExp = remainingExp;
     }
 
     this.expBoard.innerHTML =
@@ -701,7 +731,9 @@ class Champion {
       //this interval spawns 1 enemy every 500ms
       this.spawnEnemy();
     }, this.timerEnemy);
-
+    setInterval(() => {
+      this.spawnBoss = true;
+    }, this.timerBoss);
     setInterval(() => {
       this.spawnTurrets();
     }, this.timerTurret);
