@@ -818,6 +818,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let time = document.getElementById("time");
   let frenzy = document.getElementById("frenzycount");
   let gameTitle = document.getElementById("Title");
+  let text = document.getElementById("text");
   let ingame = false;
 
   scoreboard.style.visibility = "hidden";
@@ -828,6 +829,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   play.addEventListener("click", () => {
     gameTitle.classList.add("hide");
+    text.style.visibility = "hidden";
     desc.style.visibility = "hidden";
     scoreboard.style.visibility = "visible";
     expBoard.style.visibility = "visible";
