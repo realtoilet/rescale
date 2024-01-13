@@ -9,7 +9,9 @@
 // THIS GAME ALWAYS SCALE, ITLL KEEP SCALING AS LONG AS THE GAME PROGRESS
 
 /* TODO:
-          - maybe balancing? idk man this shit too hard in the long run cuz of the scaling */
+          - maybe balancing? idk man this shit too hard in the long run cuz of the scaling
+          - I STILL DONT KNOW MANE
+          - wat */
 
 function togglePopup() {
   document.getElementById("popup1").classList.toggle("active");
@@ -31,6 +33,7 @@ class Champion {
     this.enemySpeed = 1.5;
     this.bigEnemySpeed = 3;
     this.shotSpeed = 10;
+    this.champRad = 200;
     this.champColor = "#08B2E3"; //color ng champ / character
     this.oldX = 0;
     this.oldY = 0;
@@ -115,6 +118,11 @@ class Champion {
       } else {
         return;
       }
+    });
+
+    window.addEventListener("resize", (event) => {
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
     });
   }
 
@@ -305,12 +313,23 @@ class Champion {
   }
 
   spawnEnemy() {
+    let pos = {
+      x: Math.random() * this.canvas.width,
+      y: Math.random() * this.canvas.height,
+    };
+
+    while (this.getDistance(pos, this.champ) < this.champRad) {
+      pos = {
+        x: Math.random() * this.canvas.width,
+        y: Math.random() * this.canvas.height,
+      };
+    } //man idk what the fuck
     let Enemy = {};
     if (!this.spawnBoss) {
       Enemy = {
         //properties muna ni enemy
-        x: Math.random() * this.canvas.width,
-        y: Math.random() * this.canvas.height,
+        x: pos.x,
+        y: pos.y,
         size: 15,
         color: "#DA3E52",
         speed: this.enemySpeed,
@@ -320,8 +339,8 @@ class Champion {
       };
     } else {
       Enemy = {
-        x: Math.random() * this.canvas.width,
-        y: Math.random() * this.canvas.height,
+        x: pos.x,
+        y: pos.y,
         size: 40,
         color: "#EDA2F2",
         speed: 4,
@@ -333,6 +352,7 @@ class Champion {
     }
 
     const updateEnemy = () => {
+      //nah lemme cook rq
       const deltaX = this.champ.x - Enemy.x; //distX
       const deltaY = this.champ.y - Enemy.y; //distY
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); //distance or gano kalayo yung enemy sa champ
@@ -405,6 +425,11 @@ class Champion {
 
       if (Enemy.isActive) {
         Enemy.animation = requestAnimationFrame(updateEnemy);
+      } else {
+        const index = this.enemy.indexOf(Enemy);
+        if (index > -1) {
+          this.enemy.splice(index, 1);
+        }
       }
     };
 
@@ -628,29 +653,27 @@ class Champion {
   }
   enemyHorde() {
     console.log("spawning horde");
-    this.timerEnemy = 40;
-    this.timerTurret = 50;
+    this.timerEnemy = 10; //how long it takes for da enemy to spawn
+    this.timerTurret = 20; //how long it takes for the turret to spawn
 
-    // spawn the enemies with the new timer
-    const spawnEnemyInterval = () => {
+    // enemy interval, spawn every 40ms
+    const spawnEnemyInterval = setInterval(() => {
       this.spawnEnemy();
-      setTimeout(spawnEnemyInterval, this.timerEnemy);
-    };
+    }, this.timerEnemy);
 
-    // spawn the turrets with the new timer
-    const spawnTurretInterval = () => {
+    // turret interval, spawn every 50ms
+    const spawnTurretInterval = setInterval(() => {
       this.spawnTurrets();
-      setTimeout(spawnTurretInterval, this.timerTurret);
-    };
+    }, this.timerTurret);
 
-    spawnEnemyInterval();
-    spawnTurretInterval();
-
+    // reset after 100 sec
     setTimeout(() => {
-      this.timerEnemy = 1000; //reset
-      this.timerTurret = 5000; //reset
+      clearInterval(spawnEnemyInterval);
+      clearInterval(spawnTurretInterval);
+      this.timerEnemy = 1000; // reset
+      this.timerTurret = 5000; // reset
       console.log("horde stops");
-    }, 100); //reset after 100ms, should spawn around a few enemy and few turrets
+    }, 100); // reset after 100ms, should spawn around a few enemy and few turrets
   }
   resetGame() {
     //resets everything to start over
@@ -779,6 +802,11 @@ class Champion {
       this.timeDiv.innerHTML = `Game Time: ${minutes}m ${seconds}s`;
     }, 500); // update every second
   }
+  getDistance(point1, point2) {
+    let dx = point2.x - point1.x;
+    let dy = point2.y - point1.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -816,7 +844,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
   gameTitle.addEventListener("transitionend", () => {
-    // Check if the 'hide' class is present and remove the element if needed
     if (gameTitle.classList.contains("hide")) {
       gameTitle.remove();
     }
