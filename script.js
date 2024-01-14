@@ -44,7 +44,8 @@ class Champion {
     this.enemy = []; // array of enemy, para madami din
     this.miniboss = [];
     this.crates = [];
-    this.luck = 10;
+    this.luckHit = false;
+    this.luck = 100;
     this.allowShot = true; //checks if pwede mag shoot or naw
     this.allowFrenzy = true;
     this.spawnBoss = false;
@@ -284,8 +285,11 @@ class Champion {
               this.crates.splice(j, 1);
               let rLuck = Math.random() * 100;
               if (rLuck <= this.luck) {
-                this.shotCount++;
+                if (this.allowFrenzy) {
+                  this.shotCount++;
+                }
                 this.oldShotCount++;
+                this.luckHit = true;
               } else {
                 this.enemyHorde();
               }
@@ -716,7 +720,12 @@ class Champion {
         setTimeout(() => {
           this.timerShot = 1000;
           this.allowFrenzy = true;
-          this.shotCount = oldShotCount2;
+          if (this.luckHit) {
+            this.shotCount = oldShotCount2 + 1;
+          } else {
+            this.shotCount = oldShotCount2;
+          }
+          this.luckHit = false;
         }, 5000);
       } else {
         return;
