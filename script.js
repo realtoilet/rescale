@@ -45,7 +45,7 @@ class Champion {
     this.miniboss = [];
     this.crates = [];
     this.luckHit = false;
-    this.luck = 100;
+    this.luck = 10;
     this.allowShot = true; //checks if pwede mag shoot or naw
     this.allowFrenzy = true;
     this.spawnBoss = false;
