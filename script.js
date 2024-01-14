@@ -695,7 +695,7 @@ class Champion {
 
   userLevel() {
     if (this.currentExp >= this.levelExpReq) {
-      let remainingExp = this.currentExp - 100;
+      let remainingExp = this.currentExp - this.levelExpReq;
       this.frenzyCount += 1;
       this.level += 1;
       this.levelExpReq += 150;
