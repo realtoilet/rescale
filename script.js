@@ -698,7 +698,7 @@ class Champion {
       let remainingExp = this.currentExp - 100;
       this.frenzyCount += 1;
       this.level += 1;
-      this.levelExpReq += 50;
+      this.levelExpReq += 150;
       this.currentExp = remainingExp;
     }
 
