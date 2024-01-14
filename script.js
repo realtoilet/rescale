@@ -776,10 +776,12 @@ class Champion {
     setInterval(() => {
       this.events.innerHTML = "";
       this.events.style.visibility = "visible";
-      this.events.innerHTML += "\nEnemies will move faster now.";
+      this.events.innerHTML +=
+        "\nEnemies will move faster now. They will also spawn faster.";
       for (const enemies of this.enemy) {
         enemies.speed += 0.5;
       }
+      this.timerEnemy -= 0.05;
       this.enemySpeed += 0.5;
       setTimeout(() => {
         this.events.style.visibility = "hidden";
