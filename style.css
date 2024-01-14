@@ -172,3 +172,12 @@ html {
   transition: all 300ms ease-in-out;
   transform: translate(-50%, -50%) scale(1);
 }
+.text{
+  color: white;
+  position: absolute;
+  bottom: 130px;
+  left: 70%;
+  font-size: 20px;
+  transform: rotate(9deg);
+  text-align: center;
+}
