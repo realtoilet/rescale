@@ -59,9 +59,11 @@ class Champion {
     this.timerBoss = 8000;
     this.shotCount = 2;
     this.oldShotCount = 2;
+    this.shootInterval = 1600;
     this.gameover = false;
     this.startTime = Date.now();
-
+  }
+  start() {
     this.setupCanvas(); //sets the canvas properties
     this.setupListeners(); //sets the event listeners
     this.drawChamp(); //creates the champ / character
@@ -71,7 +73,6 @@ class Champion {
     this.timers(); //for intervals and timeouts
     this.gameTime();
   }
-
   setupCanvas() {
     this.canvas.width = window.innerWidth; //changes the width of the canvas to the screens width
     this.canvas.height = window.innerHeight; //changes the height of the canvas to the screens height
@@ -457,8 +458,6 @@ class Champion {
     this.turrets.push(turret); //push sa turret array
     this.updateTurretAnimation(turret); //animation for shooting
 
-    const shootInterval = 1600;
-
     const shoot = () => {
       if (turret.alive) {
         //if alive, let the turret shoot
@@ -473,7 +472,7 @@ class Champion {
       }
     };
 
-    turret.shootingInterval = setInterval(shoot, shootInterval);
+    turret.shootingInterval = setInterval(shoot, this.shootInterval);
   }
 
   updateTurretAnimation(turret) {
@@ -830,6 +829,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let frenzy = document.getElementById("frenzycount");
   let gameTitle = document.getElementById("Title");
   let text = document.getElementById("text");
+  let gamemodediv = document.getElementById("gamemodes");
+  let normal = document.getElementById("normal");
+  let baby = document.getElementById("baby");
+  let bossrush = document.getElementById("bossrush");
+  let turretgalore = document.getElementById("turretgalore");
+
+  let gamestart;
   let ingame = false;
 
   scoreboard.style.visibility = "hidden";
@@ -842,23 +848,82 @@ document.addEventListener("DOMContentLoaded", () => {
     gameTitle.classList.add("hide");
     text.style.visibility = "hidden";
     desc.style.visibility = "hidden";
-    scoreboard.style.visibility = "visible";
-    expBoard.style.visibility = "visible";
-    lvlBoard.style.visibility = "visible";
-    time.style.visibility = "visible";
     play.style.visibility = "hidden";
-    frenzy.style.visibility = "visible";
+    gamemodediv.style.visibility = "visible";
+  });
 
+  normal.addEventListener("click", () => {
     if (!ingame) {
-      const champion = new Champion();
+      gamestart = new Champion();
+      gamestart.start();
+
       ingame = true;
     } else {
       return;
     }
+    visibs();
   });
+  baby.addEventListener("click", () => {
+    if (!ingame) {
+      gamestart = new Champion();
+      gamestart.shotCount = 3;
+      gamestart.timerEnemy = 2000;
+      gamestart.timerTurret = 10000;
+      gamestart.timerBoss = 16000;
+      gamestart.start();
+      ingame = true;
+    } else {
+      return;
+    }
+    visibs();
+  });
+  bossrush.addEventListener("click", () => {
+    if (!ingame) {
+      gamestart = new Champion();
+      gamestart.timerBoss = 3000;
+      gamestart.start();
+
+      ingame = true;
+    } else {
+      return;
+    }
+    visibs();
+  });
+  turretgalore.addEventListener("click", () => {
+    if (!ingame) {
+      gamestart = new Champion();
+      gamestart.timerTurret = 2500;
+      gamestart.shootInterval = 900;
+      gamestart.start();
+
+      ingame = true;
+    } else {
+      return;
+    }
+    visibs();
+  });
+
   gameTitle.addEventListener("transitionend", () => {
     if (gameTitle.classList.contains("hide")) {
       gameTitle.remove();
     }
   });
+
+  function visibs() {
+    scoreboard.style.visibility = "visible";
+    expBoard.style.visibility = "visible";
+    lvlBoard.style.visibility = "visible";
+    time.style.visibility = "visible";
+    frenzy.style.visibility = "visible";
+    gamemodediv.style.visibility = "hidden";
+  }
 });
+
+/*
+    scoreboard.style.visibility = "visible";
+    expBoard.style.visibility = "visible";
+    lvlBoard.style.visibility = "visible";
+    time.style.visibility = "visible";
+    frenzy.style.visibility = "visible";
+
+ */

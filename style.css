@@ -133,7 +133,7 @@ html {
   color: white;
   width: 500px;
   height: 500px;
-  overflow-y: auto; /* Make the content scrollable */
+  overflow-y: auto;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -172,7 +172,7 @@ html {
   transition: all 300ms ease-in-out;
   transform: translate(-50%, -50%) scale(1);
 }
-.text{
+.text {
   color: white;
   position: absolute;
   bottom: 130px;
@@ -180,4 +180,36 @@ html {
   font-size: 20px;
   transform: rotate(9deg);
   text-align: center;
+}
+#gamemodes {
+  width: 1200px;
+  height: 500px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 20px;
+  padding: 20px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  visibility: hidden;
+  background: rgba(0, 0, 0, 0.7);
+  box-sizing: border-box;
+}
+
+.normal,
+.baby,
+.bossrush,
+.turretgalore {
+  border: white 2px solid;
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  font-size: 24px;
+  border-radius: 10px;
+  box-sizing: border-box;
 }
