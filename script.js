@@ -711,7 +711,7 @@ class Champion {
   attackFrenzy() {
     if (this.frenzyCount > 0) {
       if (this.allowFrenzy) {
-        var audio = new Audio("popsound.mp3");
+        var audio = new Audio("machinesound.mp3");
         audio.volume = 0.05;
         audio.play();
         this.allowFrenzy = false;
@@ -840,7 +840,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let bossrush = document.getElementById("bossrush");
   let turretgalore = document.getElementById("turretgalore");
   let gamemodeText = document.getElementById("gamemodeText");
-  
 
   let gamestart;
   let ingame = false;
