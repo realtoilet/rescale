@@ -242,6 +242,8 @@ class Champion {
               enemy.health -= 20;
               if (enemy.health <= 0) {
                 this.enemy.splice(j, 1); //remove 1 from the enemy
+                var audio = new Audio("popsound.mp3");
+                audio.play();
                 if (enemy.type === "boss") {
                   this.currScore += 100; // +100 sa score
                   this.currentExp += 80; // +80 sa exp
@@ -709,6 +711,9 @@ class Champion {
   attackFrenzy() {
     if (this.frenzyCount > 0) {
       if (this.allowFrenzy) {
+        var audio = new Audio("popsound.mp3");
+        audio.volume = 0.05;
+        audio.play();
         this.allowFrenzy = false;
         this.frenzyCount -= 1;
         this.allowShot = true;
