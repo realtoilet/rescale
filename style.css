@@ -212,4 +212,14 @@ html {
   font-size: 24px;
   border-radius: 10px;
   box-sizing: border-box;
+  transition: 0.5s;
+}
+.gamemodeText{
+  color: white;
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  background: rgba(0, 0, 0, 0.7);
 }

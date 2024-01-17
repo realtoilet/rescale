@@ -839,6 +839,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let baby = document.getElementById("baby");
   let bossrush = document.getElementById("bossrush");
   let turretgalore = document.getElementById("turretgalore");
+  let gamemodeText = document.getElementById("gamemodeText");
+  
 
   let gamestart;
   let ingame = false;
