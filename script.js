@@ -140,7 +140,7 @@ class Champion {
       this.rotation = Math.atan2(deltaY, deltaX); //old code idek what this was for
 
       const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY); //gano kalayo ang total distance ni champ sa target click
-      const speed = 0.12; //speed ni champ
+      const speed = 0.2; //speed ni champ
       const duration = distance / speed; //how long itll take for champ to go to distance
       let initTime; //initial time
 
